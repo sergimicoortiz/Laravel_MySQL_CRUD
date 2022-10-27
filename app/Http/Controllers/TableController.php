@@ -39,6 +39,20 @@ class TableController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (Table::where('id', $id)->exists()) {
+            $table = Table::find($id);
+            $table->name = $request->name;
+            $table->save();
+            return response()->json([
+                "message" => "Table updated successfully"
+            ], 200);
+        } else {
+            return response()->json([
+                "message" => "Table not found"
+            ], 404);
+        }
+
+        //return TableResource::make(Table::where('id', $id)->update('name', $request->name));
     } //update
 
     public function destroy($id)
