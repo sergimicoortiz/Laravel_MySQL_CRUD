@@ -9,53 +9,44 @@ use App\Models\Table;
 
 class TableController extends Controller
 {
-
     public function index()
     {
-        $table = Table::all();
-        return response()->json($table);
+        return TableResource::collection(Table::all());
     } //index
 
-
-    public function store(Request $request)
+    public function store(StoreTableRequest $request)
     {
-        $new_table = new Table();
-        $new_table->name = $request->name;
-        $new_table->save();
-        return TableResource::make($new_table);
+        return TableResource::make(Table::create($request->validated()));
     } //store
-
 
     public function show($id)
     {
         return TableResource::make(Table::where('id', $id)->firstOrFail());
     } //show
 
-
-    public function edit($id)
+    public function update(StoreTableRequest $request, $id)
     {
-    } //edit
-
-
-    public function update(Request $request, $id)
-    {
-        if (Table::where('id', $id)->exists()) {
-            $table = Table::find($id);
-            $table->name = $request->name;
-            $table->save();
+        $update = Table::where('id', $id)->update($request->validated());
+        if ($update == 1) {
+            return TableResource::make(Table::where('id', $id)->firstOrFail());
+        } else {
             return response()->json([
-                "message" => "Table updated successfully"
+                "message" => "Table not found"
+            ], 404);
+        };
+    } //update
+
+    public function destroy($id)
+    {
+        $delete = Table::where('id', $id)->delete();
+        if ($delete == 1) {
+            return response()->json([
+                "message" => "Table deleted"
             ], 200);
         } else {
             return response()->json([
                 "message" => "Table not found"
             ], 404);
-        }
-
-        //return TableResource::make(Table::where('id', $id)->update('name', $request->name));
-    } //update
-
-    public function destroy($id)
-    {
+        };
     } //destroy
-}
+}//class
